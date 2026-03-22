@@ -1,154 +1,163 @@
-// 这里是你的 "学习笔记" 数据库
 const notesData = [
     {
-        id: "intro",
-        title: "01. Python基础与数据结构",
+        id: "automation",
+        title: "01. 办公自动化：解放双手的快感",
         content: `
-            <h1>Python 基础：列表与字典的魔法</h1>
-            <p>今天正式开始学习 Python。感觉其实没有想象中那么难，最核心的是理解它的数据结构。</p>
-            <h2>1. 列表 (Lists) 与 字典 (Dictionaries)</h2>
-            <p>为了加深理解，我用自己三月份初的多国旅行计划做了一个练习。用字典来管理预算真的非常清晰：</p>
-            <pre><code># 我的东南亚特种兵旅行预算分配
-travel_plan = {
-    "departure": "Guangzhou",
-    "destinations": ["Kuala Lumpur", "Singapore", "Surabaya", "Bangkok"],
-    "total_budget_cny": 5000,
-    "tour_booked": "Surabaya Bromo & Ijen 3 Days 2 Nights"
-}
+            <h1>用 Python 搞定繁琐的项目运营报表</h1>
+            <p>最近处理项目运营的数据报表头都大了，每天要从系统里导出一堆零散的表格然后再合并。秉着“能让机器干绝不自己动手”的原则，今天花了一下午摸透了 <code>pandas</code> 和 <code>openpyxl</code>。</p>
+            <h2>实战：批量合并多个 Excel 文件</h2>
+            <p>写了一个极简的脚本，一键把文件夹里所有的周报合并成一个总表，爽感难以言表：</p>
+            <pre><code>import pandas as pd
+import os
 
-# 遍历查看我的目的地
-print("本次跨国打卡点：")
-for city in travel_plan["destinations"]:
-    print(f"- {city}")
-    
-# 计算一下抛去大交通后，每天的极限生存预算...
-print(f"总预算：{travel_plan['total_budget_cny']} 元")</code></pre>
-            <p>通过这个简单的例子，我完全搞懂了 <code>for</code> 循环和字典键值对的提取。下一步准备用 Python 写个自动比价的脚本，看看怎么飞最省钱！</p>
+# 定义报表所在文件夹
+folder_path = './weekly_reports'
+all_data = pd.DataFrame()
+
+# 遍历文件夹下的所有 Excel 文件
+for file in os.listdir(folder_path):
+    if file.endswith('.xlsx'):
+        file_path = os.path.join(folder_path, file)
+        # 读取数据并追加到总表中
+        df = pd.read_excel(file_path)
+        all_data = pd.concat([all_data, df], ignore_index=True)
+
+# 导出汇总结果
+all_data.to_excel('master_report_compiled.xlsx', index=False)
+print(f"成功合并了 {len(os.listdir(folder_path))} 个报表！下班！")</code></pre>
+            <p><strong>感悟：</strong> 网络与新媒体时代的运营，真的不能只靠死磕体力，稍微懂点自动化脚本，工作效率直接起飞。</p>
         `
     },
     {
-        id: "scraping",
-        title: "02. Requests网络爬虫",
+        id: "scraping_pixel",
+        title: "02. 爬虫实战：数码产品价格监控",
         content: `
-            <h1>Web Scraping: 把互联网变成我的数据库</h1>
-            <p>学完基础语法后，直接进阶到了 Requests 和 BeautifulSoup 库。爬虫简直太有意思了！</p>
-            <h2>实战案例：批量获取动漫更新列表</h2>
-            <p>作为《海贼王》老粉，实在受不了每次都要手动去查更新到哪一集了。于是我写了一段代码去抓取网页结构：</p>
+            <h1>写个爬虫，做个理性的数码“等等党”</h1>
+            <p>一直心心念念想入手一台 Google Pixel，但由于没有国行版本，各渠道的价格水分和波动实在太大。与其每天手动刷网页，不如让 Python 帮我盯着。</p>
+            <h2>Requests + BeautifulSoup 追踪价格</h2>
+            <p>利用之前学的基础，针对某个海淘电商网站写了个监控脚本：</p>
             <pre><code>import requests
 from bs4 import BeautifulSoup
+import time
 
-url = "https://example-anime-site.com/one-piece"
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-}
+def check_pixel_price():
+    url = "https://example-tech-store.com/google-pixel"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    # 定位价格标签
+    price_tag = soup.find('span', class_='current-price')
+    if price_tag:
+        price = int(price_tag.text.replace('¥', '').replace(',', ''))
+        print(f"当前 Pixel 报价: ¥{price}")
+        
+        # 如果跌破我的心理预期，就触发提醒
+        if price < 4500:
+            print("🚨 价格已跌破 4500！冲冲冲！")
+        else:
+            print("再等等，做个理性的等等党...")
 
-response = requests.get(url, headers=headers)
-soup = BeautifulSoup(response.text, 'html.parser')
-
-# 提取最新的冒险篇章标题
-episodes = soup.find_all('div', class_='episode-title')
-for ep in episodes[:5]:  # 只看最新5集
-    print("最新更新:", ep.text.strip())</code></pre>
-            <p><strong>避坑指南：</strong> 今天遇到了一直返回 403 错误的情况，查了半天资料才发现需要伪装 <code>User-Agent</code>。这算是在网络对抗中迈出的第一步吧。</p>
+check_pixel_price()</code></pre>
+            <p>今天跑了一下，还在高位。下一步打算接入邮件提醒功能，只要降价就直接给我发邮件。</p>
         `
     },
     {
-        id: "pandas",
-        title: "03. Pandas数据分析",
+        id: "api_fashion",
+        title: "03. API与自动化：批量下载社媒素材",
         content: `
-            <h1>Pandas初探：用代码看懂市场</h1>
-            <p>最近对大宗商品尤其是金属现货市场比较关注，所以顺便学习了 Python 中最强的数据处理库：Pandas。</p>
-            <h2>DataFrame 的基本操作</h2>
-            <p>我尝试模拟了一组上海铝市和铜市的行情数据来进行清洗和分析：</p>
+            <h1>Instaloader：日系穿搭博主素材库一键搭建</h1>
+            <p>平时在 Instagram 上关注了特别多的日系时尚和穿搭博主，每次看到好看的 OOTD 都要手动截图保存，不仅画质渣，还不好整理。今天研究了一下开源库 <code>instaloader</code>。</p>
+            <h2>一行代码级别的降维打击</h2>
+            <p>原本以为要自己去分析 IG 的复杂接口，结果发现用现成的轮子太香了：</p>
+            <pre><code>import instaloader
+
+# 实例化对象
+L = instaloader.Instaloader()
+
+# 设置想要抓取的穿搭博主账号 ID
+target_profile = "japanese_ootd_blogger_name"
+
+print(f"开始获取 {target_profile} 的主页数据...")
+
+# 提取并下载最新发布的 10 篇帖子的图片
+profile = instaloader.Profile.from_username(L.context, target_profile)
+count = 0
+for post in profile.get_posts():
+    L.download_post(post, target=target_profile)
+    count += 1
+    if count >= 10:
+        break
+
+print("素材下载完成，开始整理今天的穿搭灵感！")</code></pre>
+            <p>看着终端里一行行跑出的下载进度，看着文件夹里满满的高清穿搭图，编程的成就感在此刻达到了顶峰。</p>
+        `
+    },
+    {
+        id: "data_finance",
+        title: "04. 数据分析：有色金属市场初探",
+        content: `
+            <h1>Pandas 进阶：从沪铝/沪铜看宏观趋势</h1>
+            <p>除了日常的代码，最近对大宗商品和宏观经济也产生了一些兴趣。试着用 Python 来处理一下金融市场的数据，看看能不能发现点规律。</p>
+            <h2>多维度数据切片</h2>
+            <p>假设我们拿到了一份包含金属种类、日期、现货价格和库存量的数据，用 Pandas 处理起来极其优雅：</p>
             <pre><code>import pandas as pd
 
-# 模拟市场行情数据
-metals_data = {
-    'Metal': ['Aluminum', 'Copper', 'Steel', 'Zinc'],
-    'Price_CNY_per_Ton': [19200, 68500, 4100, 21500],
-    'Inventory_Trend': ['Down', 'Stable', 'Up', 'Down']
-}
+# 读取本地的金属市场历史数据
+df = pd.read_csv('metal_market_data.csv')
 
-df = pd.DataFrame(metals_data)
+# 提取沪铝 (Aluminum) 和 沪铜 (Copper) 的数据
+target_metals = ['Aluminum', 'Copper']
+filtered_df = df[df['Metal_Type'].isin(target_metals)]
 
-# 筛选出库存下降且价格高于15000的金属
-bullish_metals = df[(df['Inventory_Trend'] == 'Down') & (df['Price_CNY_per_Ton'] > 15000)]
+# 按月份进行聚合，计算月均价格和库存均值
+monthly_stats = filtered_df.groupby(['Metal_Type', 'Month']).agg({
+    'Spot_Price': 'mean',
+    'Inventory_Tons': 'mean'
+}).reset_index()
 
-print("近期值得关注的金属品种：")
-print(bullish_metals)</code></pre>
-            <p>虽然这只是简单的数据筛选，但能明显感觉到 Pandas 在处理结构化表格时，比 Excel 强大且高效得多。</p>
+# 筛选出“库存下降且价格上涨”的强势阶段
+strong_trend = monthly_stats[
+    (monthly_stats['Inventory_Tons'] < monthly_stats['Inventory_Tons'].shift(1)) & 
+    (monthly_stats['Spot_Price'] > monthly_stats['Spot_Price'].shift(1))
+]
+
+print("符合去库涨价特征的月份及品种：")
+print(strong_trend)</code></pre>
+            <p>数据背后的故事很有意思。技术面和基本面的结合，才是分析市场的王道。</p>
         `
     },
     {
-        id: "project",
-        title: "04. 综合小项目：词汇测试器",
+        id: "nlp_spanish",
+        title: "05. 文本处理：给自己写个外语辅助工具",
         content: `
-            <h1>实战：写一个西语单词抽查小工具</h1>
-            <p>语言学习需要不断重复。我利用最近学的随机模块（random）和字典，给自己写了一个极简的西班牙语词汇测试器。</p>
-            <h2>核心逻辑</h2>
-            <pre><code>import random
+            <h1>用 Python 进行西班牙语词频统计</h1>
+            <p>最近在啃西班牙语的语法和长篇阅读。遇到生词总是查字典太影响流畅度了。于是我突发奇想，能不能用 Python 把文章里的高频词先提取出来，我集中背完再去阅读？</p>
+            <h2>正则表达式与 Counter 的妙用</h2>
+            <p>配合 <code>collections</code> 模块，分分钟搞定文本拆解：</p>
+            <pre><code>import re
+from collections import Counter
 
-spanish_vocab = {
-    "hola": "你好",
-    "gracias": "谢谢",
-    "amigo": "朋友",
-    "adiós": "再见",
-    "por favor": "请"
-}
+# 一段西班牙语新闻素材
+spanish_text = """
+El aprendizaje de idiomas requiere constancia y mucha práctica. 
+La constancia es la clave del éxito en cualquier disciplina.
+"""
 
-def vocabulary_quiz():
-    words = list(spanish_vocab.keys())
-    question = random.choice(words)
-    
-    answer = input(f"请问 '{question}' 的中文意思是？")
-    
-    if answer == spanish_vocab[question]:
-        print("¡Excelente! 回答正确！")
-    else:
-        print(f"回答错误啦，正确答案是：{spanish_vocab[question]}")
+# 转换为小写，并用正则提取所有单词 (过滤掉标点符号)
+words = re.findall(r'\b[a-záéíóúñ]+\b', spanish_text.lower())
 
-# 运行测试器
-# vocabulary_quiz()</code></pre>
-            <p>不仅复习了 Python 知识，还顺便背了几个单词，一举两得。未来可以考虑引入数据库，把它做成一个带 UI 界面、有错题本功能的小程序。</p>
+# 过滤掉无意义的停用词 (比如 el, de, la, y)
+stop_words = {'el', 'de', 'la', 'y', 'en'}
+filtered_words = [word for word in words if word not in stop_words]
+
+# 统计词频并输出前 3 个最高频的词
+word_counts = Counter(filtered_words)
+print("需要重点记忆的核心词汇：")
+for word, count in word_counts.most_common(3):
+    print(f"- {word}: 出现了 {count} 次")</code></pre>
+            <p>输出结果直接告诉我 <code>constancia</code> (坚持) 是高频词。用代码辅助语言学习，效率翻倍！</p>
         `
     }
 ];
-
-// 初始化页面
-document.addEventListener("DOMContentLoaded", () => {
-    const sidebar = document.getElementById("sidebar");
-    const contentArea = document.getElementById("content");
-
-    // 渲染侧边栏目录
-    let sidebarHTML = '<div class="sidebar-title">章节目录</div>';
-    notesData.forEach((note, index) => {
-        sidebarHTML += `<a href="#" class="menu-item ${index === 0 ? 'active' : ''}" data-id="${note.id}">${note.title}</a>`;
-    });
-    sidebar.innerHTML = sidebarHTML;
-
-    // 默认显示第一篇内容
-    contentArea.innerHTML = notesData[0].content;
-
-    // 绑定点击事件
-    const menuItems = document.querySelectorAll(".menu-item");
-    menuItems.forEach(item => {
-        item.addEventListener("click", (e) => {
-            e.preventDefault(); // 阻止默认跳转
-            
-            // 更新导航高亮
-            menuItems.forEach(nav => nav.classList.remove("active"));
-            e.target.classList.add("active");
-
-            // 获取对应的内容并更新
-            const targetId = e.target.getAttribute("data-id");
-            const note = notesData.find(n => n.id === targetId);
-            
-            // 添加淡入动画
-            contentArea.classList.remove("fade-in");
-            // 触发回流以重新启动动画
-            void contentArea.offsetWidth; 
-            contentArea.innerHTML = note.content;
-            contentArea.classList.add("fade-in");
-        });
-    });
-});
