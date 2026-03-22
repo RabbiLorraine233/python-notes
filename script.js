@@ -1,3 +1,4 @@
+// 这里是你的 "学习笔记" 数据库
 const notesData = [
     {
         id: "automation",
